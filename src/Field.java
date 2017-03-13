@@ -1,11 +1,7 @@
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.net.URL;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Map;
 
 /**
  *  The Field class defines an object that models a field full of foxes and
@@ -18,7 +14,8 @@ public class Field
     *  variables MUST be private.
     */
    private FieldOccupant[][] _occupants;
-   private Semaphore[][] _locks;
+   private Semaphore[] _locks;
+   //private TreeSet<Semaphore> _locks;
 
    // Used in index normalizing method to distinguish between x and y
    // indices
@@ -33,7 +30,7 @@ public class Field
    public Field(int width, int height) 
    {
       _occupants = new FieldOccupant[width][height];
-      _locks = new Semaphore[width][height];
+      _locks = new Semaphore[width*height];
    } // Field
 
    
@@ -98,15 +95,15 @@ public class Field
     * @return a collection of the occupants of cells adjacent to the
     * given cell; collection does not include null objects
     */
-   public Set<FieldOccupant> getNeighborsOf(int x, int y)
+   public TreeSet<FieldOccupant> getNeighborsOf(int x, int y)
    {
       // For any cell there are 8 neighbors - left, right, above, below,
       // and the four diagonals. Define a collection of offset pairs that 
       // we'll step through to access each of the 8 neighbors
-      final int[][] indexOffsets = { {0,1}, {1,0}, {0,-1}, {-1, 0}, {1,1}, 
+      final int[][] indexOffsets = {{0,1}, {1,0}, {0,-1}, {-1, 0}, {1,1}, 
                                      {1, -1}, {-1, 1}, {-1, -1}
                                    };
-      Set<FieldOccupant> neighbors = new TreeSet<FieldOccupant>( 
+      TreeSet<FieldOccupant> neighbors = new TreeSet<FieldOccupant>( 
             new Comparator<FieldOccupant>()
       {
          public int compare(FieldOccupant o1, FieldOccupant o2)
@@ -129,17 +126,59 @@ public class Field
       }
 
       //DEBUG
-      System.out.println(neighbors.toString());
+      /*System.out.println(neighbors.toString());
       for (FieldOccupant o: neighbors)
       {
          System.out.printf("%d ",o.getOrder());
       }
-      System.out.println();
+      System.out.println();*/
       //END DEBUG
       return neighbors;
 
    } // getNeighborsOf
 
+   public TreeSet<FieldOccupant> getNeighborsAndSelf(int x, int y)
+   {
+      // For any cell there are 8 neighbors - left, right, above, below,
+      // and the four diagonals. Define a collection of offset pairs that 
+      // we'll step through to access each of the 8 neighbors
+      final int[][] indexOffsets = {{0,0},  {0,1}, {1,0}, {0,-1}, {-1, 0}, {1,1}, 
+                                     {1, -1}, {-1, 1}, {-1, -1}
+                                   };
+      TreeSet<FieldOccupant> neighbors = new TreeSet<FieldOccupant>( 
+            new Comparator<FieldOccupant>()
+      {
+         public int compare(FieldOccupant o1, FieldOccupant o2)
+         {
+            return (o1.getOrder() - o2.getOrder());
+         }
+      });
+
+
+      // Iterate over the set of offsets, adding them to the x and y
+      // indexes to check the neighboring cells
+      for (int[] offset : indexOffsets)
+      {
+         // If there's something at that location, add it to our
+         // neighbor set
+         //if (!(getOccupantAt(x + offset[0], y + offset[1]) instanceof Empty))
+         //{
+            neighbors.add(getOccupantAt(x + offset[0], y + offset[1]));
+         //}
+      }
+
+      //DEBUG
+      /*System.out.println(neighbors.toString());
+      for (FieldOccupant o: neighbors)
+      {
+         System.out.printf("%d ",o.getOrder());
+      }
+      System.out.println();*/
+      //END DEBUG
+      return neighbors;
+
+   } // getNeighborsAndSelf
+   
 
    /**
     * Normalize an index (positive or negative) by translating it to a legal reference within
@@ -176,18 +215,18 @@ public class Field
    /**
     * @return the _locks
     */
-   public Semaphore getLock(int x, int y)
+   public Semaphore getLock(int order)
    {
-      return _locks[x][y];
+      return _locks[order];
    }
 
 
    /**
     * @param locks the locks to set
     */
-   public void setLock(int x, int y,Semaphore lock)
+   public void setLock(Semaphore lock, int order)
    {
-      _locks[x][y] = lock;
+      _locks[order] = lock;
    }
 
 
