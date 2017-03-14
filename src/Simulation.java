@@ -16,6 +16,7 @@ public class Simulation
    private static final int    CELL_SIZE     = 20;
    private static final String USAGE_MESSAGE = "Usage: java Simulation [--graphics] [--width int] [--height int] [--starvetime int] [--fox float] [--hound float]";
    private static AtomicBoolean      _updateField;
+   private static AtomicBoolean      _running;
    static Field                _theField     = null;
 
    /**
@@ -175,6 +176,7 @@ public class Simulation
       boolean graphicsMode = false;
       Random randomGenerator = new Random();
       int order;
+      
 
       // If we attach a GUI to this program, these objects will hold
       // references to the GUI elements
@@ -183,6 +185,7 @@ public class Simulation
       Canvas drawingCanvas = null;
 
       _updateField = new AtomicBoolean();
+      _running = new AtomicBoolean(false);
       
       /*
        * Process the input parameters. Switches we understand include:
@@ -254,7 +257,7 @@ public class Simulation
             if (randomGenerator.nextGaussian() <= probabilityFox)
             {
                _theField.setOccupantAt(i, j,
-                     new Fox(_theField, _updateField, i, j, order));
+                     new Fox(_theField, _updateField, _running, i, j, order));
             }
             // If a random number is less than or equal to the probability of
             // adding a hound, then place a hound. Note that if a fox
@@ -263,20 +266,20 @@ public class Simulation
             if (randomGenerator.nextFloat() <= probabilityHound)
             {
                _theField.setOccupantAt(i, j,
-                     new Hound(_theField, _updateField, i, j, order));
+                     new Hound(_theField, _updateField, _running, i, j, order));
             }
 
             // Fill the nulls with Empty Slots
             if (_theField.getOccupantAt(i, j) == null)
             {
                _theField.setOccupantAt(i, j,
-                     new Empty(_theField, _updateField, i, j, order));
+                     new Empty(_theField, _updateField, _running, i, j, order));
             }
 
             // Build the matrix of locks
             _theField.setLock(new Semaphore(1), order);
 
-            //
+            _theField.getOccupantAt(i, j).start();
 
             // increment the order
             order++;
@@ -305,27 +308,57 @@ public class Simulation
       
       // Draw it the first time
       //drawField(graphicsContext, _theField); // Draw the current state
+      
       // Fire up the threads!
-      for (int i = 0; i < _theField.getWidth(); i++)
+      _running.set(true);
+      
+      /*for (int i = 0; i < _theField.getWidth(); i++)
       {
          for (int j = 0; j < _theField.getHeight(); j++)
          {
             _theField.getOccupantAt(i, j).start();
          }
-      }
+      }*/
       
       
       _updateField.set(true);
       while (true)
       {
-
          if (_updateField.getAndSet(false))
          {
             drawField(graphicsContext, _theField); // Draw the current state
+            debugPrint();
          }
 
       }
 
    } // main
 
+   
+   private static void debugPrint()
+   {
+   // Draw a line above the field
+      for (int i = 0; i < _theField.getWidth() * 2 + 1; i++)
+      {
+         System.out.print("-");
+      }
+      System.out.println();
+      // For each cell, display the thing in that cell
+      for (int i = 0; i < _theField.getHeight(); i++)
+      {
+         System.out.print("|"); // separate cells with '|'
+         for (int j = 0; j < _theField.getWidth(); j++)
+         {
+            System.out.print(_theField.getLock(_theField.getOccupantAt(j, i).getOrder()).availablePermits() + "|");
+         }
+         System.out.println();
+      } // for
+
+      // Draw a line below the field
+      for (int i = 0; i < _theField.getWidth() * 2 + 1; i++)
+      {
+         System.out.print("-");
+      }
+      System.out.println();
+   }
 }

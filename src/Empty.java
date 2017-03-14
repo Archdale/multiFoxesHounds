@@ -10,20 +10,21 @@ public class Empty extends FieldOccupant
    private int           _order;
    private AtomicBoolean _drawFlag;
    private boolean       _dead;
+   private AtomicBoolean _running;
 
-   public Empty(Field theField, AtomicBoolean drawFlag, int x, int y, int order)
+   public Empty(Field theField, AtomicBoolean drawFlag, AtomicBoolean running, int x, int y, int order)
    {
       _theField = theField;
       _x = x;
       _y = y;
       _order = order;
       _drawFlag = drawFlag;
+      _running = running;
    }
 
    @Override
    public Color getDisplayColor()
    {
-      // TODO Auto-generated method stub
       return Color.white;
    }
 

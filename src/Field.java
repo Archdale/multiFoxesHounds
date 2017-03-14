@@ -136,9 +136,54 @@ public class Field
       return neighbors;
 
    } // getNeighborsOf
+   
+   public TreeSet<FieldOccupant> getNeighborsOf(FieldOccupant occupant)
+   {
+      int x = occupant.getX();
+      int y = occupant.getY();
+      // For any cell there are 8 neighbors - left, right, above, below,
+      // and the four diagonals. Define a collection of offset pairs that 
+      // we'll step through to access each of the 8 neighbors
+      final int[][] indexOffsets = {{0,1}, {1,0}, {0,-1}, {-1, 0}, {1,1}, 
+                                     {1, -1}, {-1, 1}, {-1, -1}
+                                   };
+      TreeSet<FieldOccupant> neighbors = new TreeSet<FieldOccupant>( 
+            new Comparator<FieldOccupant>()
+      {
+         public int compare(FieldOccupant o1, FieldOccupant o2)
+         {
+            return (o1.getOrder() - o2.getOrder());
+         }
+      });
+
+
+      // Iterate over the set of offsets, adding them to the x and y
+      // indexes to check the neighboring cells
+      for (int[] offset : indexOffsets)
+      {
+         // If there's something at that location, add it to our
+         // neighbor set
+         //if (!(getOccupantAt(x + offset[0], y + offset[1]) instanceof Empty))
+         //{
+            neighbors.add(getOccupantAt(x + offset[0], y + offset[1]));
+         //}
+      }
+
+      //DEBUG
+      /*System.out.println(neighbors.toString());
+      for (FieldOccupant o: neighbors)
+      {
+         System.out.printf("%d ",o.getOrder());
+      }
+      System.out.println();*/
+      //END DEBUG
+      return neighbors;
+
+   } // getNeighborsOf
 
    public TreeSet<FieldOccupant> getNeighborsAndSelf(int x, int y)
    {
+      
       // For any cell there are 8 neighbors - left, right, above, below,
       // and the four diagonals. Define a collection of offset pairs that 
       // we'll step through to access each of the 8 neighbors
@@ -179,6 +224,49 @@ public class Field
 
    } // getNeighborsAndSelf
    
+   public TreeSet<FieldOccupant> getNeighborsAndSelf(FieldOccupant occupant)
+   {
+      int x = occupant.getX();
+      int y = occupant.getY();
+      // For any cell there are 8 neighbors - left, right, above, below,
+      // and the four diagonals. Define a collection of offset pairs that 
+      // we'll step through to access each of the 8 neighbors
+      final int[][] indexOffsets = {{0,0},  {0,1}, {1,0}, {0,-1}, {-1, 0}, {1,1}, 
+                                     {1, -1}, {-1, 1}, {-1, -1}
+                                   };
+      TreeSet<FieldOccupant> neighbors = new TreeSet<FieldOccupant>( 
+            new Comparator<FieldOccupant>()
+      {
+         public int compare(FieldOccupant o1, FieldOccupant o2)
+         {
+            return (o1.getOrder() - o2.getOrder());
+         }
+      });
+
+
+      // Iterate over the set of offsets, adding them to the x and y
+      // indexes to check the neighboring cells
+      for (int[] offset : indexOffsets)
+      {
+         // If there's something at that location, add it to our
+         // neighbor set
+         //if (!(getOccupantAt(x + offset[0], y + offset[1]) instanceof Empty))
+         //{
+            neighbors.add(getOccupantAt(x + offset[0], y + offset[1]));
+         //}
+      }
+
+      //DEBUG
+      /*System.out.println(neighbors.toString());
+      for (FieldOccupant o: neighbors)
+      {
+         System.out.printf("%d ",o.getOrder());
+      }
+      System.out.println();*/
+      //END DEBUG
+      return neighbors;
+
+   } // getNeighborsAndSelf
 
    /**
     * Normalize an index (positive or negative) by translating it to a legal reference within
