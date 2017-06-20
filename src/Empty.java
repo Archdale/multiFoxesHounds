@@ -1,25 +1,20 @@
 import java.awt.Color;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Empty extends FieldOccupant
 {
 
-   private Field         _theField;
-   private int           _x;
-   private int           _y;
-   private int           _order;
-   private AtomicBoolean _drawFlag;
-   private boolean       _dead;
-   private AtomicBoolean _running;
+   private int _x;
+   private int _y;
+   private int _order;
 
-   public Empty(Field theField, AtomicBoolean drawFlag, AtomicBoolean running, int x, int y, int order)
+   public Empty(Field theField, AtomicBoolean drawFlag, CountDownLatch running,
+         int x, int y, int order)
    {
-      _theField = theField;
       _x = x;
       _y = y;
       _order = order;
-      _drawFlag = drawFlag;
-      _running = running;
    }
 
    @Override
@@ -37,34 +32,45 @@ public class Empty extends FieldOccupant
       return " ";
    }
 
+   /**
+    * @return the total ordering of this field occupant
+    */
+   @Override
    public int getOrder()
    {
       return _order;
    }
 
+   /**
+    * @return the X co-ordinant of this field occupant
+    */
+   @Override
    public int getX()
    {
       return _x;
    }
 
+   /**
+    * @return the Y co-ordinant of this field occupant
+    */
+   @Override
    public int getY()
    {
       return _y;
    }
 
+   /**
+    * Kills the current occupant.
+    */
+   @Override
    public void kill()
    {
-      _dead = true;
    }
-   
+
    @Override
    public void run()
    {
-      // Lock Neighbors/Self based on total ordering
-
-      // Do stuff
-
-      // Unlock Neighbors/Self
+      // Empty Cells just exist, don't do nothing.
 
    }
 }
